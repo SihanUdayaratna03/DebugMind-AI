@@ -164,7 +164,10 @@ function App() {
                 <span className="dot pulse-green"></span>
                 <span className="status-text">Engine Online</span>
              </div>
-             <span className="time-display">{time}</span>
+             <div className="time-display-wrapper">
+                <i className="fa-regular fa-clock"></i>
+                <span className="time-display">{time}</span>
+             </div>
           </div>
        </header>
 
