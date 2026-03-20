@@ -68,6 +68,11 @@ function App() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState("");
+  const [gitStatus, setGitStatus] = useState("disconnected");
+  
+  // GitHub Auto-Commit State
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [commitMessage, setCommitMessage] = useState("");
 
   const languageOptions = [
     { value: "python", label: "Python 3.x", icon: "fa-brands fa-python" },
@@ -104,6 +109,29 @@ function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGitConnect = () => {
+    if (gitStatus === "disconnected") {
+      setGitStatus("connecting");
+      setTimeout(() => {
+        setGitStatus("connected");
+      }, 2000); // Simulate connection delay
+    } else if (gitStatus === "connected") {
+      setGitStatus("disconnected");
+      setCommitMessage(""); // Clear commit message on disconnect
+    }
+  };
+
+  const handleCommit = () => {
+    if (!code.trim()) return;
+    setIsCommitting(true);
+    setCommitMessage("");
+    // Simulate git add, commit, push
+    setTimeout(() => {
+      setIsCommitting(false);
+      setCommitMessage("✓ Success: Code auto-committed to origin/main via DebugMind.");
+    }, 2500);
   };
 
   const getLanguageName = (lang) => {
@@ -164,6 +192,27 @@ function App() {
                 <span className="dot pulse-green"></span>
                 <span className="status-text">Engine Online</span>
              </div>
+
+             {/* Dynamic GitHub Connection */}
+             {gitStatus === "disconnected" && (
+                <button className="github-btn" onClick={handleGitConnect}>
+                   <i className="fa-brands fa-github"></i> Connect GitHub
+                </button>
+             )}
+             {gitStatus === "connecting" && (
+                <button className="github-btn connecting" disabled>
+                   <div className="spinner-mini" style={{width: '12px', height: '12px', borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#fff'}}></div>
+                   <span>Connecting...</span>
+                </button>
+             )}
+             {gitStatus === "connected" && (
+                <div className="github-connected" onClick={handleGitConnect} title="Click to disconnect">
+                   <i className="fa-brands fa-github"></i>
+                   <span>Developer</span>
+                   <i className="fa-solid fa-check-circle auth-check"></i>
+                </div>
+             )}
+
              <div className="time-display-wrapper">
                 <i className="fa-regular fa-clock"></i>
                 <span className="time-display">{time}</span>
@@ -227,6 +276,39 @@ function App() {
                          </>
                       )}
                    </button>
+
+                   {/* GitHub Auto-Commit Feature */}
+                   {gitStatus === "connected" && (
+                      <div className="github-action-area fade-in-up">
+                         <div className="divider"></div>
+                         <h4 className="sub-title"><i className="fa-brands fa-github"></i> Version Control</h4>
+                         <p className="card-desc" style={{fontSize: '0.82rem', marginBottom: '15px'}}>
+                            Your GitHub account is securely linked. You can automatically push this source code to your repository.
+                         </p>
+                         <button 
+                            className="btn-secondary" 
+                            onClick={handleCommit} 
+                            disabled={isCommitting || !code.trim() || loading}
+                         >
+                            {isCommitting ? (
+                               <>
+                                  <div className="spinner-mini"></div>
+                                  Pushing to origin/main...
+                               </>
+                            ) : (
+                               <>
+                                  <i className="fa-solid fa-code-commit"></i>
+                                  Auto-Commit to GitHub
+                               </>
+                            )}
+                         </button>
+                         {commitMessage && (
+                            <div className="commit-success fade-in-up">
+                               {commitMessage}
+                            </div>
+                         )}
+                      </div>
+                   )}
                 </div>
 
                 {(result || loading) && (

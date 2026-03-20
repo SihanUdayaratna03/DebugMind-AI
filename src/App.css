@@ -263,6 +263,73 @@ body {
 
 .status-text { font-size: 0.75rem; font-weight: 600; color: #34C759; text-transform: uppercase; letter-spacing: 0.05em; }
 
+/* GitHub Connection Integration */
+.github-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.github-btn i { font-size: 0.9rem; }
+
+.github-btn:hover:not(.connecting) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.github-btn.connecting {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.github-connected {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.github-connected:hover {
+  background: rgba(255, 59, 48, 0.15); /* Red hover to indicate "disconnect" */
+  border-color: rgba(255, 59, 48, 0.4);
+}
+
+.github-connected:hover .auth-check {
+  display: none;
+}
+.github-connected:hover::after {
+  content: '\f00d'; /* FontAwesome times (X) icon */
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #ff3b30;
+  margin-left: 2px;
+}
+
+.auth-check {
+  color: #34C759;
+}
+
 .time-display-wrapper {
   display: flex;
   align-items: center;
@@ -508,8 +575,20 @@ body {
 
 .card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; }
 .card-desc { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 25px; }
+.sub-title { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;}
 
-.btn-primary {
+.divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  margin: 25px 0;
+}
+
+.github-action-area {
+  margin-top: 10px;
+}
+
+.btn-primary, .btn-secondary {
   width: 100%;
   padding: 16px;
   background: var(--apple-blue);
@@ -534,7 +613,35 @@ body {
 }
 
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  box-shadow: none;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.commit-success {
+  margin-top: 15px;
+  padding: 12px 16px;
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+  border-left: 4px solid #34C759;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s ease forwards;
+}
 
 .spinner-mini {
   width: 16px; height: 16px;
