@@ -65,7 +65,8 @@ function App() {
   // Dashboard state
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("python");
-  const [result, setResult] = useState("");
+  const [analysisResult, setAnalysisResult] = useState("");
+  const [correctedCode, setCorrectedCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState("");
   const [gitStatus, setGitStatus] = useState("disconnected");
@@ -97,15 +98,40 @@ function App() {
   const handleDebug = async () => {
     if (!code.trim()) return;
     setLoading(true);
-    setResult("");
+    setAnalysisResult("");
+    setCorrectedCode("");
     try {
       const response = await axios.post("http://127.0.0.1:8000/debug", {
         code: code,
         language: language,
       });
-      setResult(response.data.result || "✓ Analysis Complete: No structural issues detected. The code is highly optimized.");
+      if (response.data.error) {
+        setAnalysisResult("⚠️ Backend execution failed:\n" + response.data.error);
+      } else {
+        const rawResult = response.data.result || "";
+        let finalAnalysis = rawResult;
+        let finalCode = "";
+        
+        // Strategy 1: Look for "3. Fixed Code:" format strictly from backend
+        const fixedCodeBlock = rawResult.match(/3\.\s*Fixed\s*Code:\s*(?:```[\w]*\s*\n)?([\s\S]*?)(?:\n\s*```)?\s*(?=4\.\s*Best Practices:|$)/i);
+        
+        if (fixedCodeBlock && fixedCodeBlock[1]) {
+           finalCode = fixedCodeBlock[1].trim();
+           finalAnalysis = rawResult.replace(fixedCodeBlock[0], "").trim();
+        } else {
+           // Strategy 2: Fallback, just look for any trailing markdown code block
+           const fallbackBlock = rawResult.match(/```[\w]*\n([\s\S]*?)\n```/);
+           if (fallbackBlock && fallbackBlock[1]) {
+              finalCode = fallbackBlock[1].trim();
+              finalAnalysis = rawResult.replace(fallbackBlock[0], "").trim();
+           }
+        }
+
+        setAnalysisResult(finalAnalysis || "✓ Analysis Complete: No structural issues detected. The code is highly optimized.");
+        setCorrectedCode(finalCode);
+      }
     } catch (error) {
-      setResult("❌ Offline: AI Server at 127.0.0.1:8000 is not responding.");
+      setAnalysisResult("❌ Network Error or AI Server offline: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -311,7 +337,7 @@ function App() {
                    )}
                 </div>
 
-                {(result || loading) && (
+                {(analysisResult || loading) && (
                    <div style={{ marginTop: '30px' }} className="fade-in-up">
                      <ElectricBorder
                        color="#0A84FF" // Apple Blue matching
@@ -324,6 +350,7 @@ function App() {
                              <i className="fa-solid fa-microchip"></i>
                              <span>AI Intelligence Dashboard</span>
                           </div>
+                          
                           <div className="result-content-area">
                              {loading ? (
                                 <div className="loading-state">
@@ -331,7 +358,28 @@ function App() {
                                    <p>Processing via Neural Engine...</p>
                                 </div>
                              ) : (
-                                <pre className="result-text">{result}</pre>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                   {/* Section 1: Detected Errors / Analysis */}
+                                   <div>
+                                      <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#ffbd2e' }}>
+                                         <i className="fa-solid fa-bug"></i> Detected Errors & Analysis
+                                      </h5>
+                                      <pre className="result-text">{analysisResult}</pre>
+                                   </div>
+
+                                   {/* Section 2: Corrected Code (if available) */}
+                                   {correctedCode && (
+                                     <div>
+                                        <div className="divider" style={{ margin: '15px 0' }}></div>
+                                        <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#34c759' }}>
+                                           <i className="fa-solid fa-code"></i> Corrected Code
+                                        </h5>
+                                        <div className="corrected-code-container" style={{ background: 'rgba(0,0,0,0.4)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                           <pre className="result-text" style={{ color: '#fff' }}>{correctedCode}</pre>
+                                        </div>
+                                     </div>
+                                   )}
+                                </div>
                              )}
                           </div>
                        </div>
