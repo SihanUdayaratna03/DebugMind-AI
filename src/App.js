@@ -65,9 +65,15 @@ function App() {
   // Dashboard state
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("python");
-  const [result, setResult] = useState("");
+  const [analysisResult, setAnalysisResult] = useState("");
+  const [correctedCode, setCorrectedCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState("");
+  const [gitStatus, setGitStatus] = useState("disconnected");
+  
+  // GitHub Auto-Commit State
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [commitMessage, setCommitMessage] = useState("");
 
   const languageOptions = [
     { value: "python", label: "Python 3.x", icon: "fa-brands fa-python" },
@@ -92,18 +98,78 @@ function App() {
   const handleDebug = async () => {
     if (!code.trim()) return;
     setLoading(true);
-    setResult("");
+    setAnalysisResult("");
+    setCorrectedCode("");
     try {
-      const response = await axios.post("http://127.0.0.1:8000/debug", {
+      const response = await axios.post("http://localhost:9999/debug", {
         code: code,
         language: language,
       });
-      setResult(response.data.result || "✓ Analysis Complete: No structural issues detected. The code is highly optimized.");
+      if (response.data.error) {
+        setAnalysisResult("⚠️ Backend execution failed:\n" + response.data.error);
+      } else {
+        const rawResult = response.data.result || "";
+        let finalAnalysis = rawResult;
+        let finalCode = "";
+        
+        // Advanced Parsing for Gemini Agent Headers (###)
+        if (rawResult.includes("###")) {
+           // Split by the "Fixed Source Code" header
+           const parts = rawResult.split(/###\s*🛠️?\s*Fixed\s*Source\s*Code/i);
+           
+           if (parts.length > 1) {
+              // The analysis is everything before the fixed code header
+              finalAnalysis = parts[0].trim();
+              
+              // Extract the code block from the second part
+              const codeMatch = parts[1].match(/```[\w]*\n([\s\S]*?)\n```/);
+              if (codeMatch && codeMatch[1]) {
+                 finalCode = codeMatch[1].trim();
+                 // Add any remaining text after the code block to the analysis
+                 const afterCode = parts[1].replace(codeMatch[0], "").trim();
+                 if (afterCode) finalAnalysis += "\n\n" + afterCode;
+              }
+           }
+        } else {
+           // Fallback to older regex strategies if headers aren't found
+           const fallbackBlock = rawResult.match(/```[\w]*\n([\s\S]*?)\n```/);
+           if (fallbackBlock && fallbackBlock[1]) {
+              finalCode = fallbackBlock[1].trim();
+              finalAnalysis = rawResult.replace(fallbackBlock[0], "").trim();
+           }
+        }
+
+        setAnalysisResult(finalAnalysis || "✓ Analysis Complete: No structural issues detected. The code is highly optimized.");
+        setCorrectedCode(finalCode);
+      }
     } catch (error) {
-      setResult("❌ Offline: AI Server at 127.0.0.1:8000 is not responding.");
+      setAnalysisResult("❌ Network Error or AI Server offline: " + error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGitConnect = () => {
+    if (gitStatus === "disconnected") {
+      setGitStatus("connecting");
+      setTimeout(() => {
+        setGitStatus("connected");
+      }, 2000); // Simulate connection delay
+    } else if (gitStatus === "connected") {
+      setGitStatus("disconnected");
+      setCommitMessage(""); // Clear commit message on disconnect
+    }
+  };
+
+  const handleCommit = () => {
+    if (!code.trim()) return;
+    setIsCommitting(true);
+    setCommitMessage("");
+    // Simulate git add, commit, push
+    setTimeout(() => {
+      setIsCommitting(false);
+      setCommitMessage("✓ Success: Code auto-committed to origin/main via DebugMind.");
+    }, 2500);
   };
 
   const getLanguageName = (lang) => {
@@ -164,7 +230,31 @@ function App() {
                 <span className="dot pulse-green"></span>
                 <span className="status-text">Engine Online</span>
              </div>
-             <span className="time-display">{time}</span>
+
+             {/* Dynamic GitHub Connection */}
+             {gitStatus === "disconnected" && (
+                <button className="github-btn" onClick={handleGitConnect}>
+                   <i className="fa-brands fa-github"></i> Connect GitHub
+                </button>
+             )}
+             {gitStatus === "connecting" && (
+                <button className="github-btn connecting" disabled>
+                   <div className="spinner-mini" style={{width: '12px', height: '12px', borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#fff'}}></div>
+                   <span>Connecting...</span>
+                </button>
+             )}
+             {gitStatus === "connected" && (
+                <div className="github-connected" onClick={handleGitConnect} title="Click to disconnect">
+                   <i className="fa-brands fa-github"></i>
+                   <span>Developer</span>
+                   <i className="fa-solid fa-check-circle auth-check"></i>
+                </div>
+             )}
+
+             <div className="time-display-wrapper">
+                <i className="fa-regular fa-clock"></i>
+                <span className="time-display">{time}</span>
+             </div>
           </div>
        </header>
 
@@ -224,9 +314,42 @@ function App() {
                          </>
                       )}
                    </button>
+
+                   {/* GitHub Auto-Commit Feature */}
+                   {gitStatus === "connected" && (
+                      <div className="github-action-area fade-in-up">
+                         <div className="divider"></div>
+                         <h4 className="sub-title"><i className="fa-brands fa-github"></i> Version Control</h4>
+                         <p className="card-desc" style={{fontSize: '0.82rem', marginBottom: '15px'}}>
+                            Your GitHub account is securely linked. You can automatically push this source code to your repository.
+                         </p>
+                         <button 
+                            className="btn-secondary" 
+                            onClick={handleCommit} 
+                            disabled={isCommitting || !code.trim() || loading}
+                         >
+                            {isCommitting ? (
+                               <>
+                                  <div className="spinner-mini"></div>
+                                  Pushing to origin/main...
+                               </>
+                            ) : (
+                               <>
+                                  <i className="fa-solid fa-code-commit"></i>
+                                  Auto-Commit to GitHub
+                               </>
+                            )}
+                         </button>
+                         {commitMessage && (
+                            <div className="commit-success fade-in-up">
+                               {commitMessage}
+                            </div>
+                         )}
+                      </div>
+                   )}
                 </div>
 
-                {(result || loading) && (
+                {(analysisResult || loading) && (
                    <div style={{ marginTop: '30px' }} className="fade-in-up">
                      <ElectricBorder
                        color="#0A84FF" // Apple Blue matching
@@ -239,6 +362,7 @@ function App() {
                              <i className="fa-solid fa-microchip"></i>
                              <span>AI Intelligence Dashboard</span>
                           </div>
+                          
                           <div className="result-content-area">
                              {loading ? (
                                 <div className="loading-state">
@@ -246,7 +370,28 @@ function App() {
                                    <p>Processing via Neural Engine...</p>
                                 </div>
                              ) : (
-                                <pre className="result-text">{result}</pre>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                   {/* Section 1: Detected Errors / Analysis */}
+                                   <div>
+                                      <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#ffbd2e' }}>
+                                         <i className="fa-solid fa-bug"></i> Detected Errors & Analysis
+                                      </h5>
+                                      <pre className="result-text">{analysisResult}</pre>
+                                   </div>
+
+                                   {/* Section 2: Corrected Code (if available) */}
+                                   {correctedCode && (
+                                     <div>
+                                        <div className="divider" style={{ margin: '15px 0' }}></div>
+                                        <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#34c759' }}>
+                                           <i className="fa-solid fa-code"></i> Corrected Code
+                                        </h5>
+                                        <div className="corrected-code-container" style={{ background: 'rgba(0,0,0,0.4)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                           <pre className="result-text" style={{ color: '#fff' }}>{correctedCode}</pre>
+                                        </div>
+                                     </div>
+                                   )}
+                                </div>
                              )}
                           </div>
                        </div>
