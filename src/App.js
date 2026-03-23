@@ -101,7 +101,7 @@ function App() {
     setAnalysisResult("");
     setCorrectedCode("");
     try {
-      const response = await axios.post("http://127.0.0.1:8000/debug", {
+      const response = await axios.post("http://localhost:9999/debug", {
         code: code,
         language: language,
       });
@@ -112,14 +112,26 @@ function App() {
         let finalAnalysis = rawResult;
         let finalCode = "";
         
-        // Strategy 1: Look for "3. Fixed Code:" format strictly from backend
-        const fixedCodeBlock = rawResult.match(/3\.\s*Fixed\s*Code:\s*(?:```[\w]*\s*\n)?([\s\S]*?)(?:\n\s*```)?\s*(?=4\.\s*Best Practices:|$)/i);
-        
-        if (fixedCodeBlock && fixedCodeBlock[1]) {
-           finalCode = fixedCodeBlock[1].trim();
-           finalAnalysis = rawResult.replace(fixedCodeBlock[0], "").trim();
+        // Advanced Parsing for Gemini Agent Headers (###)
+        if (rawResult.includes("###")) {
+           // Split by the "Fixed Source Code" header
+           const parts = rawResult.split(/###\s*🛠️?\s*Fixed\s*Source\s*Code/i);
+           
+           if (parts.length > 1) {
+              // The analysis is everything before the fixed code header
+              finalAnalysis = parts[0].trim();
+              
+              // Extract the code block from the second part
+              const codeMatch = parts[1].match(/```[\w]*\n([\s\S]*?)\n```/);
+              if (codeMatch && codeMatch[1]) {
+                 finalCode = codeMatch[1].trim();
+                 // Add any remaining text after the code block to the analysis
+                 const afterCode = parts[1].replace(codeMatch[0], "").trim();
+                 if (afterCode) finalAnalysis += "\n\n" + afterCode;
+              }
+           }
         } else {
-           // Strategy 2: Fallback, just look for any trailing markdown code block
+           // Fallback to older regex strategies if headers aren't found
            const fallbackBlock = rawResult.match(/```[\w]*\n([\s\S]*?)\n```/);
            if (fallbackBlock && fallbackBlock[1]) {
               finalCode = fallbackBlock[1].trim();
