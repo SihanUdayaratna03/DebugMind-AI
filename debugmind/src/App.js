@@ -74,6 +74,17 @@ function App() {
   // GitHub Auto-Commit State
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitMessage, setCommitMessage] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(correctedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
+  // Calculate lines and chars
+  const lineCount = code ? code.split(/\r\n|\r|\n/).length : 0;
+  const charCount = code.length;
 
   const languageOptions = [
     { value: "python", label: "Python 3.x", icon: "fa-brands fa-python" },
@@ -294,6 +305,10 @@ function App() {
                       onChange={(e) => setCode(e.target.value)}
                       spellCheck="false"
                    />
+                   
+                   <div className="editor-status-bar">
+                      Ln {lineCount}, Ch {charCount} &nbsp;&bull;&nbsp; UTF-8
+                   </div>
                 </div>
              </div>
 
@@ -392,7 +407,13 @@ function App() {
                                         <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#34c759' }}>
                                            <i className="fa-solid fa-code"></i> Corrected Code
                                         </h5>
-                                        <div className="corrected-code-container" style={{ background: 'rgba(0,0,0,0.4)', padding: '15px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                        <div className="corrected-code-container">
+                                           <button 
+                                              className={`copy-btn ${copied ? "copied" : ""}`}
+                                              onClick={handleCopyCode}
+                                           >
+                                              {copied ? <><i className="fa-solid fa-check"></i> Copied!</> : <><i className="fa-regular fa-copy"></i> Copy code</>}
+                                           </button>
                                            <pre className="result-text" style={{ color: '#fff' }}>{correctedCode}</pre>
                                         </div>
                                      </div>
