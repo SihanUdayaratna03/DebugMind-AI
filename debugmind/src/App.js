@@ -5,6 +5,7 @@ import "./App.css";
 // Import custom components
 import BlurText from "./BlurText";
 import ElectricBorder from "./ElectricBorder";
+import GitHubIcon from "./GitHubIcon";
 
 // Custom Apple-style Dropdown Component
 const CustomSelect = ({ options, value, onChange }) => {
@@ -251,7 +252,7 @@ function App() {
              {/* Dynamic GitHub Connection */}
              {gitStatus === "disconnected" && (
                 <button className="github-btn" onClick={handleGitConnect}>
-                   <i className="fa-brands fa-github"></i> Connect GitHub
+                   <GitHubIcon size={18} /> Connect GitHub
                 </button>
              )}
              {gitStatus === "connecting" && (
@@ -262,7 +263,7 @@ function App() {
              )}
              {gitStatus === "connected" && (
                 <div className="github-connected" onClick={handleGitConnect} title="Click to disconnect">
-                   <i className="fa-brands fa-github"></i>
+                   <GitHubIcon size={18} />
                    <span>Developer</span>
                    <i className="fa-solid fa-check-circle auth-check"></i>
                 </div>
@@ -340,7 +341,7 @@ function App() {
                    {gitStatus === "connected" && (
                       <div className="github-action-area fade-in-up">
                          <div className="divider"></div>
-                         <h4 className="sub-title"><i className="fa-brands fa-github"></i> Version Control</h4>
+                         <h4 className="sub-title"><GitHubIcon size={18} glow={false} /> Version Control</h4>
                          <p className="card-desc" style={{fontSize: '0.82rem', marginBottom: '15px'}}>
                             Your GitHub account is securely linked. You can automatically push this source code to your repository.
                          </p>
