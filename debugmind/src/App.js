@@ -320,7 +320,7 @@ function App() {
                    <p className="card-desc">Run our advanced AI model to profile your code for vulnerabilities, inefficiencies, and standard compliance.</p>
                    
                    <button 
-                      className="btn-primary" 
+                      className={`btn-primary ${loading ? "loading" : ""}`} 
                       onClick={handleDebug} 
                       disabled={loading || !code.trim()}
                    >
