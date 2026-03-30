@@ -300,13 +300,22 @@ function App() {
 
           {/* Title */}
           <div className="landing-title-area">
-            <BlurText
-              text="DebugMind AI"
-              delay={80}
-              animateBy="words"
-              direction="top"
-              className="landing-title gradient-text"
-            />
+            <ElectricBorder
+              color="#0A84FF"
+              speed={2}
+              chaos={0.2}
+              borderRadius={32}
+            >
+              <div style={{ padding: '20px' }}>
+                <BlurText
+                  text="Welcome to DebugMind AI"
+                  delay={100}
+                  animateBy="words"
+                  direction="top"
+                  className="landing-title gradient-text"
+                />
+              </div>
+            </ElectricBorder>
           </div>
 
           <p className="landing-subtitle" style={{ animation: "fadeInUp 0.9s ease 1.1s backwards" }}>
