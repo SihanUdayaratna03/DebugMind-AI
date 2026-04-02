@@ -45,7 +45,7 @@ def performance_profiler(code: str) -> str:
 def get_llm():
     # Use Google Gemini Pro 1.5 or 2.0 Flash/Pro
     return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash", # High speed & performance
+        model="gemini-1.5-pro", # High accuracy over speed
         google_api_key=os.getenv("GOOGLE_API_KEY"),
         temperature=0.1
     )
