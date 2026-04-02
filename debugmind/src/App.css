@@ -329,6 +329,24 @@ body {
   animation: pulse 2s infinite;
 }
 
+.dot.pulse-yellow {
+  width: 8px;
+  height: 8px;
+  background-color: #FFBD2E;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #FFBD2E;
+  animation: pulse 2s infinite;
+}
+
+.dot.pulse-red {
+  width: 8px;
+  height: 8px;
+  background-color: #FF5F56;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #FF5F56;
+  animation: pulse 2s infinite;
+}
+
 @keyframes pulse {
   0% {
     opacity: 1;

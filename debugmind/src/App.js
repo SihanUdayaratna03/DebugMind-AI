@@ -72,6 +72,9 @@ function App() {
   const [time, setTime] = useState("");
   const [gitStatus, setGitStatus] = useState("disconnected");
   
+  // Backend Connection State
+  const [backendStatus, setBackendStatus] = useState("connecting"); // connecting, online, offline
+  
   // GitHub Auto-Commit State
   const [isCommitting, setIsCommitting] = useState(false);
   const [commitMessage, setCommitMessage] = useState("");
@@ -108,8 +111,32 @@ function App() {
         setTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       };
       updateTime();
-      const interval = setInterval(updateTime, 10000);
-      return () => clearInterval(interval);
+      const timeInterval = setInterval(updateTime, 10000);
+
+      // Backend Health Ping
+      const checkBackendHealth = async () => {
+        try {
+          // Backend is running on port 9999
+          const res = await axios.get("http://localhost:9999/health", { timeout: 3000 });
+          if (res.data && res.data.status) {
+            setBackendStatus("online");
+          } else {
+            setBackendStatus("offline");
+          }
+        } catch (error) {
+          setBackendStatus("offline");
+        }
+      };
+
+      // Initial check
+      checkBackendHealth();
+      // Poll every 5 seconds
+      const healthInterval = setInterval(checkBackendHealth, 5000);
+
+      return () => {
+        clearInterval(timeInterval);
+        clearInterval(healthInterval);
+      };
     }
   }, [view]);
 
@@ -119,7 +146,7 @@ function App() {
     setAnalysisResult("");
     setCorrectedCode("");
     try {
-      const response = await axios.post("http://localhost:8000/debug", {
+      const response = await axios.post("http://localhost:9999/debug", {
         code: code,
         language: language,
       });
@@ -245,8 +272,10 @@ function App() {
           </div>
           <div className="header-right">
              <div className="status-indicator">
-                <span className="dot pulse-green"></span>
-                <span className="status-text">Engine Online</span>
+                <span className={`dot ${backendStatus === "online" ? "pulse-green" : backendStatus === "connecting" ? "pulse-yellow" : "pulse-red"}`}></span>
+                <span className="status-text" style={{ color: backendStatus === "online" ? "#34C759" : backendStatus === "connecting" ? "#FFBD2E" : "#FF5F56" }}>
+                  {backendStatus === "online" ? "Engine Online" : backendStatus === "connecting" ? "Connecting to Engine..." : "Engine Offline"}
+                </span>
              </div>
 
              {/* Dynamic GitHub Connection */}
