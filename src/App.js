@@ -234,20 +234,25 @@ function App() {
              {/* Dynamic GitHub Connection */}
              {gitStatus === "disconnected" && (
                 <button className="github-btn" onClick={handleGitConnect}>
-                   <i className="fa-brands fa-github"></i> Connect GitHub
+                   <i className="fa-brands fa-github"></i>
+                   <span>Connect GitHub</span>
                 </button>
              )}
              {gitStatus === "connecting" && (
                 <button className="github-btn connecting" disabled>
-                   <div className="spinner-mini" style={{width: '12px', height: '12px', borderColor: 'rgba(255,255,255,0.2)', borderTopColor: '#fff'}}></div>
-                   <span>Connecting...</span>
+                   <div className="spinner-mini"></div>
+                   <span>Negotiating...</span>
                 </button>
              )}
              {gitStatus === "connected" && (
                 <div className="github-connected" onClick={handleGitConnect} title="Click to disconnect">
-                   <i className="fa-brands fa-github"></i>
-                   <span>Developer</span>
-                   <i className="fa-solid fa-check-circle auth-check"></i>
+                   <div className="github-avatar-mini">
+                      <i className="fa-brands fa-github"></i>
+                   </div>
+                   <div className="github-user-info">
+                      <span className="user-label">Developer</span>
+                      <i className="fa-solid fa-check-circle auth-check"></i>
+                   </div>
                 </div>
              )}
 
