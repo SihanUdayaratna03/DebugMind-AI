@@ -222,7 +222,7 @@ function App() {
              </div>
              <span className="brand-name">DebugMind Pro</span>
              <button className="back-nav-btn" onClick={() => setView("landing")}>
-               <i className="fa-solid fa-chevron-left"></i> Home
+               <i className="fa-solid fa-house"></i> Home
              </button>
           </div>
           <div className="header-right">
