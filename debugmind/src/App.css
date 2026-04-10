@@ -374,37 +374,53 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
-  padding: 8px 20px;
+  padding: 10px 24px;
   border-radius: var(--radius-pill);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 10px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  gap: 12px;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
   overflow: hidden;
 }
 
+.github-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transition: 0.5s;
+}
+
 .github-btn:hover:not(.connecting) {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.4), 0 0 20px rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.github-btn:hover::before {
+  left: 100%;
 }
 
 .github-btn.connecting {
-  opacity: 0.7;
-  cursor: default;
+  opacity: 0.8;
+  cursor: wait;
 }
 
 .github-connected {
-  background: linear-gradient(135deg, rgba(52, 199, 89, 0.1) 0%, rgba(52, 199, 89, 0.05) 100%);
-  border: 1px solid rgba(52, 199, 89, 0.3);
-  padding: 8px 18px;
+  background: linear-gradient(135deg, rgba(10, 132, 255, 0.15) 0%, rgba(28, 28, 30, 0.6) 100%);
+  border: 1px solid rgba(10, 132, 255, 0.3);
+  padding: 10px 22px;
   border-radius: var(--radius-pill);
   font-size: 0.85rem;
   font-weight: 600;
@@ -413,32 +429,69 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 15px rgba(52, 199, 89, 0.15);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.2);
+  position: relative;
 }
 
 .github-connected:hover {
   background: linear-gradient(135deg, rgba(255, 59, 48, 0.15) 0%, rgba(255, 59, 48, 0.08) 100%);
   border-color: rgba(255, 59, 48, 0.4);
-  box-shadow: 0 8px 25px rgba(255, 59, 48, 0.2);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(255, 59, 48, 0.3);
+  transform: translateY(-2px);
 }
 
 .github-connected:hover .auth-check {
-  display: none;
+  opacity: 0;
+  transform: scale(0.5);
 }
 
 .github-connected:hover::after {
-  content: '\f00d';
-  /* FontAwesome times (X) icon */
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
+  content: 'Disconnect';
+  position: absolute;
+  right: 18px;
+  font-size: 0.75rem;
   color: #ff3b30;
-  margin-left: 2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: fadeInRight 0.3s ease forwards;
 }
 
 .auth-check {
   color: #34C759;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 5px rgba(52, 199, 89, 0.5));
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Custom styles for the GitHub icon component */
+.github-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.github-icon-container.glow-effect .github-svg {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+}
+
+.github-connected .github-icon-container .github-svg {
+  color: var(--apple-blue);
+}
+
+.github-btn:hover .github-icon-container {
+  animation: bounce-icon 0.5s ease infinite alternate;
+}
+
+@keyframes bounce-icon {
+  from { transform: translateY(0); }
+  to { transform: translateY(-2px); }
 }
 
 .time-display-wrapper {

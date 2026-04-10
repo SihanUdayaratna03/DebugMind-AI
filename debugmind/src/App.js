@@ -70,7 +70,9 @@ function App() {
   const [correctedCode, setCorrectedCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [time, setTime] = useState("");
-  const [gitStatus, setGitStatus] = useState("disconnected");
+  const [gitStatus, setGitStatus] = useState(() => {
+    return localStorage.getItem("github_connected") === "true" ? "connected" : "disconnected";
+  });
   
   // Backend Connection State
   const [backendStatus, setBackendStatus] = useState("connecting"); // connecting, online, offline
@@ -197,12 +199,31 @@ function App() {
   const handleGitConnect = () => {
     if (gitStatus === "disconnected") {
       setGitStatus("connecting");
+      
+      // Simulate OAuth window opening
+      const width = 600;
+      const height = 700;
+      const left = window.screen.width / 2 - width / 2;
+      const top = window.screen.height / 2 - height / 2;
+      
+      const authWindow = window.open(
+        "https://github.com/login", 
+        "GitHub Login", 
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+
+      // Simulate connection completion
       setTimeout(() => {
+        if (authWindow) authWindow.close();
         setGitStatus("connected");
-      }, 2000); // Simulate connection delay
+        localStorage.setItem("github_connected", "true");
+      }, 3000); 
     } else if (gitStatus === "connected") {
-      setGitStatus("disconnected");
-      setCommitMessage(""); // Clear commit message on disconnect
+      if (window.confirm("Are you sure you want to disconnect your GitHub account?")) {
+        setGitStatus("disconnected");
+        localStorage.setItem("github_connected", "false");
+        setCommitMessage("");
+      }
     }
   };
 
