@@ -6,6 +6,7 @@ import "./App.css";
 import BlurText from "./BlurText";
 import ElectricBorder from "./ElectricBorder";
 import GitHubIcon from "./GitHubIcon";
+import AnalysisDashboard from "./AnalysisDashboard";
 
 // Custom Apple-style Dropdown Component
 const CustomSelect = ({ options, value, onChange }) => {
@@ -443,13 +444,11 @@ function App() {
                                 </div>
                              ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                   {/* Section 1: Detected Errors / Analysis */}
-                                   <div>
-                                      <h5 className="sub-title" style={{ fontSize: '0.9rem', marginBottom: '8px', color: '#ffbd2e' }}>
-                                         <i className="fa-solid fa-bug"></i> Detected Errors & Analysis
-                                      </h5>
-                                      <pre className="result-text">{analysisResult}</pre>
-                                   </div>
+                                    {/* Section 1: Detected Errors / Analysis */}
+                                    <AnalysisDashboard 
+                                      rawResult={analysisResult} 
+                                      language={language} 
+                                    />
 
                                    {/* Section 2: Corrected Code (if available) */}
                                    {correctedCode && (
