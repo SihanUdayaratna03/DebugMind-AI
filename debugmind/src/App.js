@@ -371,19 +371,20 @@ function App() {
                    <p className="card-desc">Run our advanced AI model to comprehensively profile your code for maximum accuracy in detecting vulnerabilities, inefficiencies, and standard compliance.</p>
                    
                    <button 
-                      className={`btn-primary ${loading ? "loading" : ""}`} 
+                      className={`btn-creative-analyze ${loading ? "loading" : ""}`} 
                       onClick={handleDebug} 
                       disabled={loading || !code.trim()}
                    >
+                      <div className="shimmer-overlay"></div>
                       {loading ? (
                          <>
                             <div className="spinner-mini"></div>
-                            Analysing with High Accuracy...
+                            <span className="btn-text-glow">Analysing with High Accuracy...</span>
                          </>
                       ) : (
                          <>
-                            <i className="fa-solid fa-wand-magic-sparkles"></i>
-                            High Accuracy Analyse & Debug
+                            <i className="fa-solid fa-wand-magic-sparkles icon-magic"></i>
+                            <span className="btn-text-glow">High Accuracy Analyse & Debug</span>
                          </>
                       )}
                    </button>
