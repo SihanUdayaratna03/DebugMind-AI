@@ -41,6 +41,23 @@ def performance_profiler(code: str) -> str:
         return "[OPTIMIZATION]: Consider using vectorized operations if data is large"
     return "[EFFICIENT]: No major performance bottlenecks identified"
 
+@tool
+def complexity_analyzer(code: str) -> str:
+    """Calculates cognitive and cyclomatic complexity based on branching."""
+    branching_keywords = ["if", "for", "while", "switch", "catch", "else"]
+    complexity_score = sum(code.count(keyword) for keyword in branching_keywords)
+    
+    if complexity_score > 10:
+        return f"[WARNING]: High complexity detected (Score: {complexity_score}). Consider refactoring into smaller functions."
+    return f"[MAINTAINABLE]: Complexity score is acceptable (Score: {complexity_score})."
+
+@tool
+def dependency_checker(code: str) -> str:
+    """Checks for outdated or insecure dependencies imports."""
+    if "import requests" in code or "require('request')" in code:
+        return "[UPDATE]: 'requests' module found. Ensure you are using the latest version with timeout configured."
+    return "[CLEAN]: No major dependency issues detected"
+
 # ===== LLM SETUP =====
 def get_llm():
     # Use Google Gemini Pro 1.5 or 2.0 Flash/Pro
@@ -59,7 +76,9 @@ def run_agent(code, language):
         f"Syntax Analysis: {syntax_checker.run(code)}",
         f"Logic Verification: {bug_detector.run(code)}",
         f"Security Audit: {security_auditor.run(code)}",
-        f"Performance Profiling: {performance_profiler.run(code)}"
+        f"Performance Profiling: {performance_profiler.run(code)}",
+        f"Complexity Check: {complexity_analyzer.run(code)}",
+        f"Dependency Check: {dependency_checker.run(code)}"
     ]
     
     agent_thoughts = "\n".join(observations)
